@@ -17,7 +17,7 @@ class TratarDados:
     shape_Degrau = TARGET_DATA_PrimeiraOr_Degrau.shape
     shape_Saida = TARGET_DATA_PrimeiraOr_Saida.shape
 
-    if shape_Degrau[0] < shape_Degrau[1]:  # As matrizes são do tipo Coluna.
+    if shape_Degrau[0] > shape_Degrau[1]:  # As matrizes são do tipo Coluna.
         Tempo = TARGET_DATA_PrimeiraOr_Degrau[:, 0]
         Degrau = TARGET_DATA_PrimeiraOr_Degrau[:, 1]
         Temperatura = TARGET_DATA_PrimeiraOr_Saida[:, 1]
