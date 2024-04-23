@@ -47,6 +47,35 @@ if constanteTempo <= 0:
     print(f"Tempo: {Tempo}")
     exit()
 
+theta = Tempo[np.argmax(np.abs(Temperatura) > 0.05)]  # Find the time at which the response starts to change
+tau = Tempo[np.argmax(Temperatura >= 0.632 * Temperatura[-1])] - theta  # Find the time constant tau
+
+# Calculate the static gain (k) of the system
+k = Temperatura[-1] / Degrau[-1]
+
+theta += atrasoTransporte
+
+# Print the identified parameters
+print(f"Identified Parameters:")
+print(f"  - Gain (k): {k:.4f}")
+print(f"  - Time Delay (θ): {theta:.4f}")
+print(f"  - Time Constant (τ): {tau:.4f}")
+
+# Define the transfer function based on the identified parameters
+numerator = [k]
+denominator = [tau, 1]  # First-order system with time delay
+sys = ctl.TransferFunction(numerator, denominator) * ctl.TransferFunction([1], [1, 0, 1])
+
+# Plot the step response of the identified model
+t, y = ctl.step_response(sys)
+plt.figure()
+plt.plot(t, y)
+plt.title('Identified System Step Response')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.grid()
+plt.show()
+
 # Calculate PID controller parameters using Internal Model Control method (IMC)
 print('\nFunção de Transferência para o Controlador PID IMC:\n')
 _lambda = 75
