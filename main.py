@@ -47,6 +47,35 @@ if constanteTempo <= 0:
     print(f"Tempo: {Tempo}")
     exit()
 
+# Calculate PID controller parameters using Internal Model Control method (IMC)
+print('\nFunção de Transferência para o Controlador PID IMC:\n')
+_lambda = 75
+Kp = (2 * constanteTempo + atrasoTransporte) / (ganhoEstatico * (2 * _lambda + atrasoTransporte))
+Td = constanteTempo * atrasoTransporte / (2 * constanteTempo + atrasoTransporte)
+Ti = constanteTempo + atrasoTransporte / 2
+print(f'  - Kp = {Kp:.4f}\n  - Ti = {Ti:.4f}\n  - Td = {Td:.4f}\n')
+
+# Define PID controller transfer function using IMC method
+numerator = [Kp * Td, Kp, Kp / Ti]
+denominator = [1, 0]
+PID = ctl.TransferFunction(numerator, denominator)
+
+# Define system transfer function
+numerator_sys = [1]
+denominator_sys = [1, 2, 1]
+sys = ctl.TransferFunction(numerator_sys, denominator_sys)
+
+# Plot step response
+t, y = ctl.step_response(ctl.feedback(PID * sys))
+plt.figure()
+plt.plot(t, y)
+plt.title('Resposta ao degrau')
+plt.xlabel('Tempo')
+plt.ylabel('Amplitude')
+plt.grid()
+plt.show()
+
+
 # Calculate PID controller parameters
 print('\nFunção de Transferência para o Controlador PID CHR sem overshoot:\n')
 Kp = 0.6 * constanteTempo / (ganhoEstatico * atrasoTransporte)
@@ -70,11 +99,6 @@ numerator_sys = [1]
 denominator_sys = [1, 2, 1]
 sys = ctl.TransferFunction(numerator_sys, denominator_sys)
 
-# Check for any NaN or Inf values in the transfer functions
-if np.isnan(PID).any() or np.isnan(sys).any() or np.isinf(PID).any() or np.isinf(sys).any():
-    print("Error: Funções de transferência contêm valores inválidos (NaN ou Inf).")
-    exit()
-
 # Plot step response
 t, y = ctl.step_response(ctl.feedback(PID * sys))
 plt.figure()
@@ -84,6 +108,3 @@ plt.xlabel('Tempo')
 plt.ylabel('Amplitude')
 plt.grid()
 plt.show()
-
-# Set an example value for the step input amplitude
-amplitudeDegrau = 1  # Substitua pela amplitude desejada
