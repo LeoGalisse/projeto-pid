@@ -76,6 +76,90 @@ plt.ylabel('Amplitude')
 plt.grid()
 plt.show()
 
+# Plot original and estimated step responses
+plt.figure()
+plt.plot(t, y, label='Estimated Response')
+plt.plot(Tempo, Temperatura, label='Original Response')
+plt.title('Comparison of Original and Estimated Step Responses')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid()
+plt.show()
+
+# Fine-tuning parameters
+# Experiment with adjusting parameters (k, theta, tau) to improve the fit
+# You can manually adjust the parameters or use optimization techniques to find the best fit
+
+# Example of manual fine-tuning:
+# k = k * 1.1  # Increase the gain by 10%
+# theta = theta * 1.05  # Increase the time delay by 5%
+# tau = tau * 0.95  # Decrease the time constant by 5%
+
+# Define the transfer function with the updated parameters
+numerator = [k]
+denominator = [tau, 1]  # First-order system with time delay
+sys = ctl.TransferFunction(numerator, denominator) * ctl.TransferFunction([1], [1, 0, 1])
+
+# Plot the updated estimated step response
+t, y = ctl.step_response(sys)
+plt.figure()
+plt.plot(t, y, label='Updated Estimated Response')
+plt.plot(Tempo, Temperatura, label='Original Response')
+plt.title('Comparison of Original and Updated Estimated Step Responses')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid()
+plt.show()
+
+# Define PID controller parameters for both open-loop and closed-loop systems
+# Estimativa inicial dos parâmetros do controlador PID
+Kp = 1.0
+Ti = 1.0
+Td = 0.5
+
+# Open-loop (no feedback)
+Kp_open = Kp
+Ti_open = Ti
+Td_open = Td
+numerator_open = [Kp_open * Td_open, Kp_open, Kp_open / Ti_open]
+denominator_open = [1, 0]
+PID_open = ctl.TransferFunction(numerator_open, denominator_open)
+
+# Closed-loop (feedback)
+Kp_closed = Kp
+Ti_closed = Ti
+Td_closed = Td
+numerator_closed = [Kp_closed * Td_closed, Kp_closed, Kp_closed / Ti_closed]
+denominator_closed = [1, 0]
+PID_closed = ctl.TransferFunction(numerator_closed, denominator_closed)
+
+# Define system transfer function
+numerator_sys = [1]
+denominator_sys = [1, 2, 1]
+sys = ctl.TransferFunction(numerator_sys, denominator_sys)
+
+# Simulate open-loop system
+sys_open = sys * PID_open
+t_open, y_open = ctl.step_response(sys_open)
+
+# Simulate closed-loop system
+feedback_sys = ctl.feedback(PID_closed * sys)
+t_closed, y_closed = ctl.step_response(feedback_sys)
+
+# Plot step responses
+plt.figure()
+plt.plot(t_open, y_open, label='Open Loop')
+plt.plot(t_closed, y_closed, label='Closed Loop')
+plt.title('Step Response Comparison')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid()
+plt.show()
+
+
 # Calculate PID controller parameters using Internal Model Control method (IMC)
 print('\nFunção de Transferência para o Controlador PID IMC:\n')
 _lambda = 75
